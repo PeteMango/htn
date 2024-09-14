@@ -18,12 +18,16 @@ def home():
     """
     return jsonify({"message": "Welcome to the Flask app with Supabase!"})
 
-@app.route('/insert', methods=['POST'])
-def insert_data():
-    """Insert into the database
+@app.route('/insert_toilet', methods=['POST'])
+def insert_toilet():
+    """Insert into the toilets table
 
     Args:
-        Information dependent on the table inserted into 
+        tid (int): toilet id
+        lat (float): latitude
+        long (float): longitude
+        info (str): additional information
+        geder (str): gender of the washroom
 
     Returns:
         json: information inserted into the database
@@ -32,43 +36,65 @@ def insert_data():
     if not data:
         return jsonify({"error": "Invalid input, JSON expected"}), 400
 
-    response = None
-    if not data.get("table"):
-        return jsonify({"error": "Table name is required"}), 400
+    if not data.get("tid"):
+        return jsonify({"error": "User ID is required"}), 400
 
-    if data.get("table") == "Toilet":
-        if not data.get("tid"):
-            return jsonify({"error": "User ID is required"}), 400
+    response = supabase.table("Toilet").insert({
+        "tid": data.get("tid", -1),
+        "lat": data.get("lat", 0),
+        "long": data.get("long", 0),
+        "info": data.get("info", ""),
+        "gender": data.get("gender", "")
+    }).execute()
+    return jsonify(response.data)
 
-        response = supabase.table("Toilet").insert({
-            "tid":
-            data.get("tid", -1),
-            "lat":
-            data.get("lat", 0),
-            "long":
-            data.get("long", 0),
-            "info":
-            data.get("info", ""),
-            "gender":
-            data.get("gender", "")
-        }).execute()
-        return jsonify(response.data)
+@app.route('/insert_user', methods=['POST'])
+def insert_user():
+    """Insert into the user table
 
-    if data.get("table") == "User":
-        if not data.get("uid"):
-            return jsonify({"error": "User ID is required"}), 400
+    Args:
+        uid (int): user id
+        email (str): email
+        gender (str): user gender
 
-        response = supabase.table("User").insert({
-            "uid":
-            data.get("uid", -1),
-            "email":
-            data.get("email", ""),
-            "gender":
-            data.get("gender", ""),
-        }).execute()
-        return jsonify(response.data)
+    Returns:
+        json: information inserted into the database
+    """
+    data = request.json
+    if not data:
+        return jsonify({"error": "Invalid input, JSON expected"}), 400
 
-    return jsonify({"error": "invalid table name"}), 400
+    if not data.get("uid"):
+        return jsonify({"error": "User ID is required"}), 400
+
+    response = supabase.table("User").insert({
+        "uid": data.get("uid", -1),
+        "email": data.get("email", ""),
+        "gender": data.get("gender", ""),
+    }).execute()
+    return jsonify(response.data)
+
+@app.route('/insert_tag', methods=['POST'])
+def insert_tag():
+    """Insert into the tag table
+
+    Args:
+        tag (str): accessibility tags
+
+    Returns:
+        json: information inserted into the database
+    """
+    data = request.json
+    if not data:
+        return jsonify({"error": "Invalid input, JSON expected"}), 400
+
+    if not data.get("tag_name"):
+        return jsonify({"error": "Tag name is required"}), 400
+
+    response = supabase.table("Tag").insert({
+        "tag_name": data.get("tag_name", "ERROR"),
+    }).execute()
+    return jsonify(response.data)
 
 @app.route('/toilets', methods=['GET'])
 def get_toilets():
@@ -77,13 +103,34 @@ def get_toilets():
     Returns:
         json: toilet information
     """
-    data = request.json
-    response = supabase.table(data.get("table",
-                                       "Toilet")).select("*").execute()
+    tid = request.args.get("tid")
+
+    if tid is None:
+        response = supabase.table("Toilet").select("*").execute()
+    else:
+        response = supabase.table("Toilet").select("*").eq("tid",
+                                                           tid).execute()
 
     if response.data:
         return jsonify(response.data), 200
+    return jsonify({"message": "No data found"}), 404
 
+@app.route('/users', methods=['GET'])
+def get_users():
+    """Returns all the users & their information
+
+    Returns:
+        json: user information
+    """
+    uid = request.args.get("uid")
+
+    if uid is None:
+        response = supabase.table("User").select("*").execute()
+    else:
+        response = supabase.table("User").select("*").eq("uid", uid).execute()
+
+    if response.data:
+        return jsonify(response.data), 200
     return jsonify({"message": "No data found"}), 404
 
 if __name__ == "__main__":
