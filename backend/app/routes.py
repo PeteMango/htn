@@ -99,13 +99,15 @@ def get_toilets():
     Returns:
         json: toilet information
     """
+
     tid = request.args.get("tid")
 
     try:
         if tid is None:
             response = supabase.table("Toilet").select("*").execute()
         else:
-            response = supabase.table("Toilet").select("*").eq("tid", tid).execute()
+            response = supabase.table("Toilet").select("*").eq("tid",
+                                                               tid).execute()
 
         if response.data:
             return jsonify(response.data), 200
@@ -127,7 +129,8 @@ def get_users():
         if uid is None:
             response = supabase.table("User").select("*").execute()
         else:
-            response = supabase.table("User").select("*").eq("uid", uid).execute()
+            response = supabase.table("User").select("*").eq("uid",
+                                                             uid).execute()
 
         if response.data:
             return jsonify(response.data), 200
@@ -135,6 +138,64 @@ def get_users():
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve data: {str(e)}"}), 500
 
+@app.route('/write-review', methods=['POST'])
+def write_user_review():
+    """Returns all reviews by a specific user
+
+    Returns:
+        json: user and review information
+    """
+    data = request.json
+    if not data:
+        return jsonify({"error": "Invalid input, JSON expected"}), 400
+
+    print(data)
+
+    uid = data.get("uid")
+    tid = data.get("tid")
+    rating = data.get("rating")
+    review = data.get("review")
+
+    if uid is None or tid is None:
+            return jsonify({"error": "uid and tid cannot be null"}), 404
+
+    if review == "":
+        return jsonify({"error": "review cannot be null"}), 404
+
+    data = {"uid": uid, "tid": tid, "rating": rating, "review": review}
+
+    try:
+        response = supabase.table("ToiletUser").insert({
+            "uid": uid,
+            "tid": tid,
+            "rating": rating,
+            "review": review
+        }).execute()
+        return jsonify(response.data), 201
+    except Exception as e:
+        return jsonify(
+            {"error": f"Failed to insert into database data: {str(e)}"}), 500
+
+@app.route('/user-review', methods=['GET'])
+def get_user_review():
+    """Returns all reviews by a specific user
+
+    Returns:
+        json: user and review information
+    """
+    uid, tid = request.args.get("uid"), request.args.get("tid")
+    if uid is None or tid is None:
+        return jsonify({"error": "uid and tid cannot be null"}), 404
+
+    try:
+        response = supabase.table("ToiletUser").select(
+            "uid", "tid", "rating", "review").eq("uid", uid).eq("tid",
+                                                                tid).execute()
+        if response.data:
+            return jsonify(response.data), 200
+        return jsonify({"message": "No data found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Failed to retrieve data: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
