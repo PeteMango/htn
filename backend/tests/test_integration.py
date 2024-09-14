@@ -3,11 +3,11 @@ import random
 def test_insert_and_get_toilet(client):
     """Test inserting a toilet and then retrieving it."""
     tid = random.randint(100, 1000)
-    
+
     # Set precision for lat and long
     lat = round(random.uniform(0, 180), 6)
     long = round(random.uniform(0, 180), 6)
-    
+
     info = f'random toilet at {lat} {long}'
     gender = "male" if random.randint(0, 1) == 0 else "female"
 
