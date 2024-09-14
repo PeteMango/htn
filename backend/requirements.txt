@@ -1,2 +1,4 @@
 supabase
 flask
+pytest
+pytest-flask
