@@ -32,5 +32,4 @@ jobs:
           API_URL: ${{ secrets.API_URL }}
           API_KEY: ${{ secrets.API_KEY }}
         run: |
-          cd backend
           pytest --maxfail=1 --disable-warnings -v
