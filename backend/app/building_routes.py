@@ -5,7 +5,9 @@ from geopy import distance
 @app.route('/building_toilets', methods=['GET'])
 def get_toilets():
     """Returns toilets in the specified building`
-        - needs the building id
+        
+    Args:
+        bid (int): the building id
 
     Returns:
         json: array of toilet information
