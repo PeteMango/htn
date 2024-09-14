@@ -15,25 +15,52 @@ def home():
 
 @app.route('/insert', methods=['POST'])
 def insert_data():
-    # Get data from the POST request
     data = request.json
     if not data:
         return jsonify({"error": "Invalid input, JSON expected"}), 400
 
-    # Insert data into the Supabase 'toilets' table
-    response = supabase.table(data.get("table", "Toilet")).insert({
-        "tid": data.get("tid", 1),
-        "lat": data.get("lat", 1.0),
-        "long": data.get("long", 1.0),
-        "info": data.get("info", "this is test toilet"),
-        "gender": data.get("gender", True)
-    }).execute()
+    response = None
+    if not data.get("table"):
+        return jsonify({"error": "Table name is required"}), 400
 
-    return jsonify(response.data)
+    print(f'name is: {data.get("table")}')
+
+    if data.get("table") == "Toilet":
+        if not data.get("tid"):
+            return jsonify({"error": "User ID is required"}), 400
+
+        response = supabase.table("Toilet").insert({
+            "tid":
+            data.get("tid", -1),
+            "lat":
+            data.get("lat", 0),
+            "long":
+            data.get("long", 0),
+            "info":
+            data.get("info", ""),
+            "gender":
+            data.get("gender", "")
+        }).execute()
+        return jsonify(response.data)
+    elif data.get("table") == "User":
+        if not data.get("uid"):
+            return jsonify({"error": "User ID is required"}), 400
+
+        response = supabase.table("User").insert({
+            "uid":
+            data.get("uid", -1),
+            "email":
+            data.get("email", ""),
+            "gender":
+            data.get("gender", ""),
+        }).execute()
+
+        return jsonify(response.data)
+
+    return jsonify({"error": "invalid table"}), 400
 
 @app.route('/toilets', methods=['GET'])
 def get_toilets():
-    # Retrieve all entries from the 'toilets' table
     data = request.json
     response = supabase.table(data.get("table", "Toilet")).select("*").execute()
 
