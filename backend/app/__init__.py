@@ -9,3 +9,7 @@ SUPABASE_KEY = os.getenv("API_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 from app import routes
+from app import toilet_routes
+from app import user_routes
+from app import building_routes
+from app import review_routes
