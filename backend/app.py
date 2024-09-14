@@ -11,10 +11,23 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/')
 def home():
+    """Entrypoint into flask app
+
+    Returns:
+        None
+    """
     return jsonify({"message": "Welcome to the Flask app with Supabase!"})
 
 @app.route('/insert', methods=['POST'])
 def insert_data():
+    """Insert into the database
+
+    Args:
+        Information dependent on the table inserted into 
+
+    Returns:
+        json: information inserted into the database
+    """
     data = request.json
     if not data:
         return jsonify({"error": "Invalid input, JSON expected"}), 400
@@ -22,8 +35,6 @@ def insert_data():
     response = None
     if not data.get("table"):
         return jsonify({"error": "Table name is required"}), 400
-
-    print(f'name is: {data.get("table")}')
 
     if data.get("table") == "Toilet":
         if not data.get("tid"):
@@ -42,7 +53,8 @@ def insert_data():
             data.get("gender", "")
         }).execute()
         return jsonify(response.data)
-    elif data.get("table") == "User":
+
+    if data.get("table") == "User":
         if not data.get("uid"):
             return jsonify({"error": "User ID is required"}), 400
 
@@ -54,20 +66,25 @@ def insert_data():
             "gender":
             data.get("gender", ""),
         }).execute()
-
         return jsonify(response.data)
 
-    return jsonify({"error": "invalid table"}), 400
+    return jsonify({"error": "invalid table name"}), 400
 
 @app.route('/toilets', methods=['GET'])
 def get_toilets():
+    """Returns all the toilets & their location
+
+    Returns:
+        json: toilet information
+    """
     data = request.json
-    response = supabase.table(data.get("table", "Toilet")).select("*").execute()
+    response = supabase.table(data.get("table",
+                                       "Toilet")).select("*").execute()
 
     if response.data:
         return jsonify(response.data), 200
-    else:
-        return jsonify({"message": "No data found"}), 404
+
+    return jsonify({"message": "No data found"}), 404
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
