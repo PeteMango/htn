@@ -1,15 +1,11 @@
-FROM golang:1.20-alpine AS builder
+FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY go.mod ./
-
-RUN go mod download
-
 COPY . .
 
-RUN go build -o main cmd/server/main.go
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8080
+EXPOSE 8000
 
-CMD ["./main"]
+CMD ["python", "manage.py"]
