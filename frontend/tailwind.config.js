@@ -9,7 +9,7 @@ module.exports = {
       current: 'currentColor',
       primary: colors.sky[700],
       secondary: colors.slate[600],
-      dark: colors.slate[900],
+      dark: colors.slate[700],
       light: colors.slate[200],
       white: colors.slate[50],
       error: colors.red[700],
