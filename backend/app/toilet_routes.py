@@ -30,6 +30,7 @@ def insert_toilet():
                 "tid": data["tid"],
                 "tag_name": tag
             }).execute()
+    
 
         supabase.table("BuildingToilet").upsert({
             "bid": data["bid"],

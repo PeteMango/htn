@@ -29,6 +29,29 @@ def get_toilets():
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve data: {str(e)}"}), 500
 
+@app.route('/add_building')
+def add_building():
+    """adds a buildings to the data base`
+    
+    Args:
+        lat (float): latitude of the building
+        long (float): longtitude of the building
+        bid (int): building id
+        bname (str): building name
+        address (str): address of the building
+
+    Returns:
+        json: added building
+    """ 
+    data = request.json
+
+    bid = data["bid"]
+    lat, lng = data["lat"], data["long"]
+
+    if lat < 0 or lng < 0 or lat > 180 or lng > 180:
+        return jsonify({"Error": "Latitude and longtitude have to be between 0 and 180 degrees"})
+    
+    
 
 @app.route('/near_buildings')
 def get_nearbuildings():
