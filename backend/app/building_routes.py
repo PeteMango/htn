@@ -61,7 +61,7 @@ def add_building():
 
     adress = location.address if location else "Address not found"
 
-    response = supabase.table("Building").upsert({
+    response = supabase.table("Buildings").upsert({
         "bid": bid,
         "bname": data["bname"],
         "lat": lat,
@@ -97,7 +97,7 @@ def get_nearbuildings():
         if threshold_distance is None:
             threshold_distance = 0.5  # by default use 500m as threshold
 
-        response = supabase.table("Building").select("*").execute()
+        response = supabase.table("Buildings").select("*").execute()
 
         if not response.data:
             return jsonify({"message": "No data found"}), 404

@@ -19,7 +19,7 @@ def insert_toilet():
         return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
 
     try:
-        response = supabase.table("Toilet").insert({
+        response = supabase.table("Toilets").insert({
             "tid": data["tid"],
             "info": data["info"],
             "gender": data["gender"]
@@ -30,7 +30,7 @@ def insert_toilet():
                 "tid": data["tid"],
                 "tag_name": tag
             }).execute()
-    
+
 
         supabase.table("BuildingToilet").upsert({
             "bid": data["bid"],
@@ -53,16 +53,18 @@ def get_toilet():
 
     try:
         if tid is None:
-            return jsonify({"error": f"Bad request, did not provide tid"}), 400
-        
-        response = supabase.from_("Toilet").select("tid, info, gender, Tag(tag_name), ToiletUser(uid, rating, review)").eq("tid", tid).execute()
+            return jsonify({"error": "Bad request, did not provide tid"}), 400
+
+        response = supabase.from_("Toilets").select(
+            "tid, info, gender,Tag(tag_name), Reviews(uid, rating, review)"
+        ).eq("tid", tid).execute()
 
         if response.data:
             return jsonify(response.data), 200
         return jsonify({"message": "No data found"}), 404
     except Exception as e:
         return jsonify({"error": f"Failed to reetrieve data: {str(e)}"}), 500
-    
+
 @app.route('/insert_tag', methods=['POST'])
 def insert_tag():
     """Insert a tag into the tag table
@@ -78,7 +80,7 @@ def insert_tag():
         return jsonify({"error": "Tag name is required"}), 400
 
     try:
-        response = supabase.table("Tag").insert({
+        response = supabase.table("Tags").insert({
             "tag_name": data["tag_name"]
         }).execute()
         return jsonify(response.data), 201
