@@ -12,9 +12,9 @@ def get_users():
 
     try:
         if uid is None:
-            response = supabase.table("User").select("*").execute()
+            response = supabase.table("Users").select("*").execute()
         else:
-            response = supabase.table("User").select("*").eq("uid", uid).execute()
+            response = supabase.table("Users").select("*").eq("uid", uid).execute()
 
         if response.data:
             return jsonify(response.data), 200
@@ -41,7 +41,7 @@ def insert_user():
         return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
 
     try:
-        response = supabase.table("User").insert({
+        response = supabase.table("Users").insert({
             "uid": data["uid"],
             "email": data["email"],
             "gender": data["gender"]
