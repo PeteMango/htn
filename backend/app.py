@@ -1,8 +1,18 @@
 import os
 from supabase import create_client, Client
 
-url: str = "https://abhuhlniginkudwghcfx.supabase.co"
-key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiaHVobG5pZ2lua3Vkd2doY2Z4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjYzMjUxODQsImV4cCI6MjA0MTkwMTE4NH0.mHMFsGtSX_3XofoYyVzMnN3x0m-129rkHtDr9dHBGgI"
+url: str = os.environ.get("API_URL")
+key: str = os.environ.get("API_KEY")
 supabase: Client = create_client(url, key)
 
-print('done')
+# response = (supabase.table("toilets").insert({
+#     "tid": 1,
+#     "lat": 1.0,
+#     "lng": 1.0,
+#     "info": "this is test toilet",
+#     "gender": True
+# }).execute())
+
+response = supabase.table("toilets").select("*").execute()
+
+print(response)
