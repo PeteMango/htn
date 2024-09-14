@@ -1,3 +1,4 @@
+pytest
 supabase
 flask
 geopy
