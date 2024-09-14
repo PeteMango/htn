@@ -51,22 +51,14 @@ const LeafletPopup = ({
             <MarkerIconWrapper color={color} icon={icon} />
           </div>
           <div
-            className="flex w-full flex-col justify-center p-3 pt-6 text-center"
+            className="flex w-full flex-col justify-center p-3 pt-6 text-center gap-4"
             style={{ marginTop: AppConfig.ui.markerIconSize * 2 + 8 }}
           >
             <h3 className="m-0 text-lg font-bold leading-none">{title}</h3>
             <p className="m-0 text-secondary">{address}</p>
-            {/* todo: new component for button group */}
-            <div className="mt-6 flex flex-row justify-between gap-2 p-2">
-              <Button className="gap-2 bg-secondary text-white" onClick={() => handlePopupClose()} small>
-                <ChevronLeft size={AppConfig.ui.menuIconSize} />
-                Close
-              </Button>
-              <Button className="gap-2 bg-primary text-white" onClick={() => handleOpenLocation()} small>
-                Open
-                <ChevronRight size={AppConfig.ui.menuIconSize} />
-              </Button>
-            </div>
+            <Button className="gap-2 bg-secondary text-white rounded-lg" onClick={() => handlePopupClose()} small>
+              See Building
+            </Button>
           </div>
         </div>
       </div>
