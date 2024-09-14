@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from app import app, supabase
+from geopy import distance
 
 @app.route('/building_toilets', methods=['GET'])
 def get_toilets():
