@@ -1,6 +1,7 @@
 [MESSAGES CONTROL]
 disable=
     too-many-return-statements,
+    broad-exception-caught,
 
 [MASTER]
 ignore=

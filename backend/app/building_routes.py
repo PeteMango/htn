@@ -11,33 +11,35 @@ def get_toilets():
         bid (int): the building id
 
     Returns:
-        json: array of toilet information
+        json: All the toilets in a building
     """
 
-    bid = request.args.get("bid")
+    data = request.json
+    bid = data["bid"]
+    print(bid)
 
     try:
         if bid is None:
-            return jsonify({"error": f"Bad request, did not provide bid"}), 400
+            return jsonify({"Error": "Bad request, did not provide bid"}), 400
 
-        response = supabase.from_('BuildingToilet').select('Toilet(tid, info, gender)').eq("bid", bid)
+        response = supabase.from_('BuildingToilet').select(
+            'Toilets(tid, info, gender)').eq("bid", bid).execute()
 
         if response.data:
             return jsonify(response.data), 200
 
         return jsonify({"message": "No data found"}), 404
-
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve data: {str(e)}"}), 500
 
 @app.route('/add_building', methods=['POST'])
 def add_building():
-    """adds a buildings to the data base`
+    """Adds a building to the database
     
     Args:
         lat (float): latitude of the building
         long (float): longtitude of the building
-        bid (int): building id
+        bid (str): building id  
         bname (str): building name
 
     Returns:
@@ -72,40 +74,44 @@ def add_building():
 
 @app.route('/near_buildings')
 def get_nearbuildings():
-    """Returns nearby buildings`
-        - needs user's lat and long 
-        - needs threshold 
+    """Returns nearby buildings
+
+    Args:
+        lat (float): user's latitude
+        lng (float): user's longtitude
+        threshold (float): kilometer distance from user
 
     Returns:
         json: array of buildings
     """
-
-    lat = request.args.get("lat")
-    lon = request.args.get("lon")
-    threshold_distance = request.args.get("threshold")
+    data = request.json
+    lat, lng, threshold_distance = data["lat"], data["lng"], data["threshold"]
 
     try:
-        if lat is None or lon is None:
-            return jsonify({"error": f"Bad request, did not provide position (lon and lat)"}), 400
+        if lat is None or lng is None:
+            return jsonify({
+                "error":
+                "Bad request, did not provide position (lon and lat)"
+            }), 400
 
         if threshold_distance is None:
-            threshold_distance = 0.5 # by default use 500m as threshold
+            threshold_distance = 0.5  # by default use 500m as threshold
 
         response = supabase.table("Building").select("*").execute()
 
         if not response.data:
             return jsonify({"message": "No data found"}), 404
 
-        nearBuildings = []
+        near_buildings = []
 
-        user_coord = (lat, lon)
+        user_coord = (lat, lng)
 
         for row in response.data:
             building_coord = (row["lat"], row["lon"])
-            if distance.distance(user_coord, building_coord).km <= threshold_distance:
-                nearBuildings.insert(row)
+            if distance.distance(user_coord,
+                                 building_coord).km <= threshold_distance:
+                near_buildings.insert(row)
 
-        return jsonify(nearBuildings), 200
-
+        return jsonify(near_buildings), 200
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve data: {str(e)}"}), 500
