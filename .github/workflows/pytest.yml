@@ -27,13 +27,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set up environment variables from secrets
-        run: echo "Environment variables set!"
+      - name: Run tests in the backend with secrets
         env:
           API_URL: ${{ secrets.SUPABASE_URL }}
           API_KEY: ${{ secrets.SUPABASE_KEY }}
-
-      - name: Run tests
         run: |
           cd backend
           pytest --maxfail=1 --disable-warnings -v
