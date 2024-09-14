@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from app import app, supabase
+from geopy import distance
 
 @app.route('/')
 def home():
@@ -91,10 +92,9 @@ def insert_tag():
     except Exception as e:
         return jsonify({"error": f"Failed to insert data: {str(e)}"}), 500
 
-
-@app.route('/toilets', methods=['GET'])
-def get_toilets():
-    """Returns all the toilets & their location or a specific toilet by `tid`
+@app.route('/toilet', methods=['GET'])
+def get_toilet():
+    """Gets the toilet by tid
 
     Returns:
         json: toilet information
@@ -103,13 +103,53 @@ def get_toilets():
 
     try:
         if tid is None:
-            response = supabase.table("Toilet").select("*").execute()
-        else:
-            response = supabase.table("Toilet").select("*").eq("tid", tid).execute()
+            return jsonify({"error": f"Bad request, did not provide tid"}), 400
+        
+        response = supabase.table("Toilet").select("*").eq("tid", tid).execute()
 
         if response.data:
             return jsonify(response.data), 200
         return jsonify({"message": "No data found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Failed to reetrieve data: {str(e)}"}), 500
+
+@app.route('/toilets', methods=['GET'])
+def get_toilets():
+    """Returns nearby toilets`
+        - needs user's lat and long 
+        - needs threshold 
+
+    Returns:
+        json: array of toilet information
+    """
+
+    lat = request.args.get("lat")
+    lon = request.args.get("lon")
+    threshold_distance = request.args.get("threshold")
+
+    try:
+        if lat is None or lon is None:
+            return jsonify({"error": f"Bad request, did not provide position (lon and lat)"}), 400
+        
+        if threshold_distance is None:
+            threshold_distance = 0.5 # by default use 500m as threshold
+
+        response = supabase.table("Toilet").select("*").execute()
+
+        if not response.data:
+            return jsonify({"message": "No data found"}), 404
+        
+        nearToilets = []
+
+        user_coord = (lat, lon)
+
+        for row in response.data:
+            toilet_coord = (row["lat"], row["lon"])
+            if distance.distance(user_coord, toilet_coord).km < threshold_distance:
+                nearToilets.insert(row)
+        
+        return jsonify(nearToilets), 200
+     
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve data: {str(e)}"}), 500
 
@@ -134,7 +174,6 @@ def get_users():
         return jsonify({"message": "No data found"}), 404
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve data: {str(e)}"}), 500
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
