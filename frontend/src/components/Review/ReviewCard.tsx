@@ -1,11 +1,11 @@
 import { Card, CardHeader, CardTitle } from "#components/ui/card";
 import { Review,  } from "#lib/types";
 import { getAnonymousName } from "#lib/utils";
-import { Star,  } from "lucide-react";
+import { Star } from "lucide-react";
 
 export default function ReviewCard ({ review } : { review: Review }) {
     return (
-        <div className="flex flex-col p-5 outline outline-slate-100">
+        <div className="flex flex-col p-5 rounded-lg bg-black items-center">
             <div className="flex flex-row">
                 {/* {getAnonymousName(review.uid.length) Says:} */}
                 {Array.from({ length: Math.floor(review.rating) }, () => (

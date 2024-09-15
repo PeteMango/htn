@@ -19,6 +19,9 @@ export default function Test() {
     }
 
     return (
-        <ReviewList reviews={reviews} toilet={toilet}/>
+        <div className="flex flex-row h-full">
+            <div className="w-[50%]"></div>
+            <ReviewList reviews={reviews} toilet={toilet}/>
+        </div>
     )
 }

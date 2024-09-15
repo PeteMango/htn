@@ -56,7 +56,7 @@ def get_toilet():
             return jsonify({"error": "Bad request, did not provide tid"}), 400
 
         response = supabase.from_("Toilets").select(
-            "tid, info, gender,Tag(tag_name), Reviews(uid, rating, review)"
+            "tid, info, gender, ToiletTags(tag_name), Reviews(uid, rating, review)"
         ).eq("tid", tid).execute()
 
         if response.data:
@@ -64,6 +64,45 @@ def get_toilet():
         return jsonify({"message": "No data found"}), 404
     except Exception as e:
         return jsonify({"error": f"Failed to reetrieve data: {str(e)}"}), 500
+
+@app.route('/toilets_in_building', methods=['GET'])
+def get_toilets_in_building():
+    """Gets all toilets in a building by building id, along with their detailed information.
+
+    Returns:
+        json: toilets information
+    """
+    bid = str(request.args.get("bid"))
+    print(f'bid: {bid}')
+
+    try:
+        if bid is None:
+            return jsonify({"error": "Bad request, did not provide bid"}), 400
+
+        building_response = supabase.table("BuildingToilet").select('*').eq('bid', bid).execute()
+        print(f'buildings: {building_response}')
+
+        if not building_response.data:
+            return jsonify({"message": "No toilets found for this building"}), 404
+
+        toilet_ids = [toilet['tid'] for toilet in building_response.data]
+        print(f'toil_ids: {toilet_ids}')
+
+        all_toilets_data = []
+
+        for tid in toilet_ids:
+            response = supabase.from_("Toilets").select(
+                "tid, info, gender, ToiletTags(tag_name), Reviews(uid, rating, review)"
+            ).eq("tid", tid).execute()
+            if response.data:
+                all_toilets_data.append(response.data)
+
+        if all_toilets_data:
+            return jsonify(all_toilets_data), 200
+        return jsonify({"message": "No toilet data found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Failed to retrieve data: {str(e)}"}), 500
+
 
 @app.route('/insert_tag', methods=['POST'])
 def insert_tag():
