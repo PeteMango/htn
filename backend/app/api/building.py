@@ -16,7 +16,6 @@ def get_toilets():
 
     data = request.json
     bid = data["bid"]
-    print(bid)
 
     try:
         if bid is None:
