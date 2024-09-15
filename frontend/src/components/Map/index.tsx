@@ -55,7 +55,7 @@ async function getBuildings(lat: number | undefined, lng: number | undefined, th
   return data.map((building: Building, index: number) => ({
     id: index,
     position: [building.lat, building.lng],
-    category: Category.CAT2,
+    category: Category.CAT1,
     title: building.bname,
     address: building.address,
   }))
