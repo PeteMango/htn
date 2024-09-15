@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
 
-import Leaflet from 'leaflet'
+import Leaflet, { LatLng, LatLngTuple } from 'leaflet'
 
 import MapTopBar from '#components/TopBar'
 import { AppConfig } from '#lib/AppConfig'
@@ -12,8 +12,6 @@ import { Places, PlacesType } from '#lib/Places'
 import LeafleftMapContextProvider from './LeafletMapContextProvider'
 import useMapContext from './useMapContext'
 import useMarkerData from './useMarkerData'
-import { useLeafletContext } from '@react-leaflet/core'
-import { watch } from 'fs'
 
 type Building = {
   bid: string
@@ -42,41 +40,45 @@ const LeafletMapContainer = dynamic(async () => (await import('./LeafletMapConta
 // write async 
 
 async function getBuildings(lat: number | undefined, lng: number | undefined, threshold: number) {
-  const response = await fetch("http://localhost:8000/near_buildings")
+  const response = await fetch(`http://localhost:8000/near_buildings?lat=${lat}&lng=${lng}&threshold=${threshold}`, {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }
+  );
+  
+  if (response.status != 200) 
+    return undefined;
+  
   const data = await response.json();
   
-  data.map((building: Building) => ({
-    id: building.bid,
+  return data.map((building: Building, index: number) => ({
+    id: index,
     position: [building.lat, building.lng],
-    category: Category.CAT1,
+    category: Category.CAT2,
     title: building.bname,
     address: building.address,
   }))
 
-  return data;
 }
 
 const LeafletMapInner = () => {
-  const [location, setLocation] = useState<Leaflet.LatLng | undefined>(undefined)
-  const [places, setPlaces] = useState<PlacesType | undefined>(undefined)
   const { map } = useMapContext()
 
-  map?.on("move", (e) => {
-    setLocation(map?.getCenter());
-  })
-
-  useEffect(() => {
-    console.log("wow", location)
-  }, [location])
+  const [places, setPlaces] = useState<PlacesType>(Places);
 
   useEffect(() => {
     async function fetchBuildings() {
-      const data = await getBuildings(location?.lat, location?.lng, 5);
-      setPlaces(data)
+      if (map) {
+        const location = Places[0].position as LatLngTuple
+        console.log("fetching data", location)
+        const data = await getBuildings(location[0], location[1], 5);
+        console.log("data", data);
+        setPlaces([...Places, ...data]);
+      }
     }
-
     fetchBuildings();
-  }, [location])
+  },[map])
 
   
   const {
@@ -89,7 +91,7 @@ const LeafletMapInner = () => {
   })
 
   const { clustersByCategory, allMarkersBoundCenter } = useMarkerData({
-    locations: Places,
+    locations: places,
     map,
     viewportWidth,
     viewportHeight,

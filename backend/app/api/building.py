@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import cross_origin
 from app import app, supabase
 from geopy import distance
 from geopy.geocoders import Nominatim
@@ -72,6 +73,7 @@ def add_building():
 
 
 @app.route('/near_buildings')
+@cross_origin()
 def get_nearbuildings():
     """Returns nearby buildings
 
@@ -83,8 +85,7 @@ def get_nearbuildings():
     Returns:
         json: array of buildings
     """
-    data = request.json
-    lat, lng, threshold_distance = data["lat"], data["lng"], data["threshold"]
+    lat, lng, threshold_distance = request.args.get("lat"), request.args.get("lng"), request.args.get("threshold")
 
     try:
         if lat is None or lng is None:
@@ -106,10 +107,11 @@ def get_nearbuildings():
         user_coord = (lat, lng)
 
         for row in response.data:
-            building_coord = (row["lat"], row["lon"])
+            # print(f'row: {row}')
+            building_coord = (row["lat"], row["lng"])
             if distance.distance(user_coord,
-                                 building_coord).km <= threshold_distance:
-                near_buildings.insert(row)
+                                 building_coord).km <= float(threshold_distance):
+                near_buildings.append(row)
 
         return jsonify(near_buildings), 200
     except Exception as e:

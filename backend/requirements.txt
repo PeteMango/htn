@@ -2,3 +2,4 @@ pytest
 supabase
 flask
 geopy
+flask-cors
