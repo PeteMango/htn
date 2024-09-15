@@ -21,6 +21,7 @@
     "@coreui/icons": "^3.0.1",
     "@coreui/icons-react": "^2.3.0",
     "@mappedin/mappedin-js": "^5.40.1",
+    "@mappedin/react-sdk": "^6.0.1-beta.3",
     "@radix-ui/react-icons": "^1.3.0",
     "@react-leaflet/core": "^2.1.0",
     "class-variance-authority": "^0.7.0",

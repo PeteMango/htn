@@ -1,10 +1,11 @@
+import MappedinMap from '#components/Map/mappedinE7';
 import { Toilet } from '#lib/types';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 
 export default function Page({ data } : { data: Toilet[]}) {
     return <div className="flex flex-row">
         <div>
-            mappedin
+            <MappedinMap />
         </div>
         <div>
             reviews
