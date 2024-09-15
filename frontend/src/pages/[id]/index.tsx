@@ -1,3 +1,4 @@
+import { Toilet } from '#lib/types';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 
 export default function Page({ data } : { data: Toilet[]}) {

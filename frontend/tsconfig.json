@@ -13,6 +13,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "incremental": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
