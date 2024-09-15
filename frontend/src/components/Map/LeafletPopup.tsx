@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { Popup, PopupProps } from 'react-leaflet'
+import { useRouter } from 'next/router'
 
 import { AppConfig } from '#lib/AppConfig'
 import { MarkerCategoriesValues } from '#lib/MarkerCategories'
@@ -25,7 +26,9 @@ const LeafletPopup = ({
   item,
   ...props
 }: LeafletPopupProps) => {
-  const { title, address } = item
+  const { id, title, address } = item
+
+  const router = useRouter();
 
   return (
     <Popup {...props}>
@@ -56,7 +59,7 @@ const LeafletPopup = ({
           >
             <h3 className="m-0 text-lg font-bold leading-none">{title}</h3>
             <p className="m-0 text-secondary">{address}</p>
-            <Button className="gap-2 bg-secondary text-white rounded-lg" onClick={() => handlePopupClose()} small>
+            <Button className="gap-2 bg-secondary text-white rounded-lg" onClick={() => router.push(`/toilet?bid=${id}`)} small>
               See Building
             </Button>
           </div>
