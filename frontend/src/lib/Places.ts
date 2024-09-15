@@ -15,9 +15,9 @@ export type PlacesClusterType = Record<string, PlaceValues[]>
 export const Places: PlacesType = [
   {
     id: 1,
-    position: [43.4668, -80.5164],
+    position: [43.473010, -80.539462],
     category: Category.CAT2,
-    title: 'Some Title 1',
-    address: 'Another Adress 123, Test City',
+    title: 'E7',
+    address: 'University of Waterloo',
   },
 ]
