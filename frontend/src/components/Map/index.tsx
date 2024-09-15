@@ -1,15 +1,27 @@
 import dynamic from 'next/dynamic'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useResizeDetector } from 'react-resize-detector'
+
+import Leaflet from 'leaflet'
 
 import MapTopBar from '#components/TopBar'
 import { AppConfig } from '#lib/AppConfig'
 import MarkerCategories, { Category } from '#lib/MarkerCategories'
-import { Places } from '#lib/Places'
+import { Places, PlacesType } from '#lib/Places'
 
 import LeafleftMapContextProvider from './LeafletMapContextProvider'
 import useMapContext from './useMapContext'
 import useMarkerData from './useMarkerData'
+import { useLeafletContext } from '@react-leaflet/core'
+import { watch } from 'fs'
+
+type Building = {
+  bid: string
+  lat: number
+  lng: number
+  bname: string
+  address: string
+}
 
 const LeafletCluster = dynamic(async () => (await import('./LeafletCluster')).LeafletCluster(), {
   ssr: false,
@@ -27,8 +39,46 @@ const LeafletMapContainer = dynamic(async () => (await import('./LeafletMapConta
   ssr: false,
 })
 
+// write async 
+
+async function getBuildings(lat: number | undefined, lng: number | undefined, threshold: number) {
+  const response = await fetch("http://localhost:8000/near_buildings")
+  const data = await response.json();
+  
+  data.map((building: Building) => ({
+    id: building.bid,
+    position: [building.lat, building.lng],
+    category: Category.CAT1,
+    title: building.bname,
+    address: building.address,
+  }))
+
+  return data;
+}
+
 const LeafletMapInner = () => {
+  const [location, setLocation] = useState<Leaflet.LatLng | undefined>(undefined)
+  const [places, setPlaces] = useState<PlacesType | undefined>(undefined)
   const { map } = useMapContext()
+
+  map?.on("move", (e) => {
+    setLocation(map?.getCenter());
+  })
+
+  useEffect(() => {
+    console.log("wow", location)
+  }, [location])
+
+  useEffect(() => {
+    async function fetchBuildings() {
+      const data = await getBuildings(location?.lat, location?.lng, 5);
+      setPlaces(data)
+    }
+
+    fetchBuildings();
+  }, [location])
+
+  
   const {
     width: viewportWidth,
     height: viewportHeight,
