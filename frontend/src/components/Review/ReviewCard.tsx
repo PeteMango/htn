@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 
 export default function ReviewCard ({ review } : { review: Review }) {
     return (
-        <div className="flex flex-col p-5 rounded-lg bg-black items-center">
+        <div className="flex flex-col p-5 rounded-lg w-full items-center">
             <div className="flex flex-row">
                 {/* {getAnonymousName(review.uid.length) Says:} */}
                 {Array.from({ length: Math.floor(review.rating) }, () => (
